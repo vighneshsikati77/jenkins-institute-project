@@ -1,40 +1,38 @@
 pipeline {
-  agent any
+    agent any
 
-  stages{
-    stage('Checkout Code'){
-          steps{
-            checkout scm
-          }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t jenkins-nodejs-app .'
+            }
+        }
+
+        stage('Stop Old Container') {
+            steps {
+                sh 'docker rm -f nodejs-app || true'
+            }
+        }
+
+        stage('Run New Container') {
+            steps {
+                sh 'docker run -d --name nodejs-app -p 3000:3000 jenkins-nodejs-app'
+            }
+        }
     }
 
-     stage('Install all the dependencies'){
-       steps{
-         sh 'npm install'
-       }
-     }
-
-     stage('Stop Old Application') {
-       steps {
-         sh '''
-          pkill node || true
-        '''
-      }
+    post {
+        success {
+            echo 'Pipeline completed Successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
     }
-
-    stage('Start the Application'){
-      steps{
-        sh 'nohup npm start &'
-      }
-    }
-  }
-
-  post {
-    success{
-      echo 'Pipeline completed Successfully !'
-    }
-    failure{
-      echo 'Pipeline failed !'
-    }
-  }
 }
