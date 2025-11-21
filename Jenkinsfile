@@ -14,6 +14,14 @@ pipeline {
        }
      }
 
+     stage('Stop Old Application') {
+       steps {
+         sh '''
+          pkill node || true
+        '''
+      }
+    }
+
     stage('Start the Application'){
       steps{
         sh 'nohup npm start &'
